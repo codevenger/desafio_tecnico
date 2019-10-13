@@ -9,7 +9,7 @@ Desafio técnico proposto para avaliação de candidatura a emprego
 
 
 ### Instalação:
-Esta aplicação utiliza linguagem Perl que está presente na quase totalidade das distribuições GNU/Linux, mas adicionalmente podem ser necessário instalar alguns módulos. Em distribuições baseadas no Debian, com apt, execute no shell (remover o sudo, caso já esteja logado como usuário **root**):
+Esta aplicação utiliza linguagem Perl que está presente na quase totalidade das distribuições GNU/Linux, mas adicionalmente pode ser necessário instalar alguns módulos. Em distribuições baseadas no Debian, com apt, execute no shell (remover o sudo, caso já esteja logado como usuário **root**):
 
 `$ sudo apt-get install libutf8-all-perl libjson-perl libfile-basedir-perl`
 
