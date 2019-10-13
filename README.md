@@ -13,3 +13,22 @@ Esta aplicação utiliza linguagem Perl que está presente na quase totalidade d
 
 `$ sudo apt-get install libutf8-all-perl libjson-perl libfile-basedir-perl`
 
+
+### Versão em container:
+Proceda com os seguintes comandos:
+
+    $ git clone https://github.com/codevenger/desafio_tecnico
+    $ cd desafio_tecnico
+    $ docker build -t docker-apache-perl .
+    $ docker run -v /var/www/html:/var/www/html -v $(pwd)/desafio_tecnico/src:/usr/local/sbin --name my_heros -p 80:80 -d docker-apache-perl /bin/bash -c "/usr/local/sbin/make_page.pl ; /usr/sbin/apache2ctl -D FOREGROUND"
+    
+    
+Por fim, abra com seu navegador preferido o endereço [http://localhost/](http://localhost)
+
+
+É possível gerar novamente uma página atualizada, utilizando o seguinte comando:
+`$ docker exec my_heros /bin/bash -c "/usr/local/sbin/make_page.pl" -it`
+
+
+
+

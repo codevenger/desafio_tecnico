@@ -18,6 +18,7 @@ my $server = 'https://gateway.marvel.com';
 my $apikey = 'bae9b6b8113ef19c40ac5df9fd928775';
 my $url = '/v1/public/characters';
 my $parms = '?apikey='.$apikey;
+my $dest = '/var/www/html/index.html';
 
 my $path = dirname(abs_path($0));
 my $tpl = $path.'/template_body.html';
@@ -67,38 +68,14 @@ foreach my $hero(@heros) {
 }
 
 $full .= `cat $path/template_footer.html`;
-open(my $fh, '>', 'index.html');
+open(my $fh, '>', $dest);
 print $fh $full;
 close($fh);
 
 exit;
 
 
-
-my $call = $server.$url.$parms;
-
-my $ua = new LWP::UserAgent;
-my $request = HTTP::Request->new(GET => $call);
-$request->referer("http://localhost");
-my $response = $ua->request($request);
-
- if($response->is_success) {
-    my $heros = JSON->new->utf8->decode($response->content);
-
-    print $heros->{data}->{total}." rows\n";
-    foreach my $line(@{$heros->{data}->{results}}) {
-        #Results from this particular query have a "Key" and a "Value"
-        print $line->{name} . "\n";
-    }
- } elsif($response->is_error) {
-     print "Erro ao executar consulta em ".$server.$url.": ".$response->message."\n";
- }
  
- 
-sub count_characters {
-
-
-}
  
 sub goCall {
     my ($call) = @_;
