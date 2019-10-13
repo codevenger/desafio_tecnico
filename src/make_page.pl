@@ -7,12 +7,22 @@ use warnings;
 use JSON;
 use LWP::UserAgent;
 use HTTP::Request;
+use Cwd qw( abs_path );
+use File::Basename;
 use List::Util qw( shuffle );
+
 
 my $server = 'https://gateway.marvel.com';
 my $apikey = 'bae9b6b8113ef19c40ac5df9fd928775';
 my $url = '/v1/public/characters';
 my $parms = '?apikey='.$apikey;
+
+my $path = dirname(abs_path($0));
+my $tpl = $path.'/template_body.html';
+$tpl = `cat $tpl`;
+
+my $full = $path.'/template_header.html';
+$full = `cat $full`;
 
 # Lista todos os personagens disponíveis. Não tem a Agente Carter! :-(
 # list_all_characters();
@@ -22,22 +32,38 @@ my @heros = ('captain america', 'black widow', 'daredevil');
 foreach my $hero(@heros) {
     my $call = $server.$url.$parms.'&name='.$hero;
     my $rows = JSON->new->utf8->decode(goCall($call));
+    
     foreach my $row(@{$rows->{data}->{results}}) {
+
+        my $tpl2 = "";
+        (my $tpl = $tpl) =~ s/\<\%character\%\>/$row->{name}/gmi;
+        my $t = $row->{thumbnail}->{path}.'.'.$row->{thumbnail}->{extension};
+        $tpl =~ s/\<\%thumbnail\%\>/$t/gmi;
         my $qtd = $row->{stories}->{available};
-        print "Nome: ".$row->{name}."\n";
-        print "Código: ".$row->{id}."\n";
-        print "Qtd. estórias: ".$qtd.".\n";
-        print "Escolhidas:\n";
         my @idx = shuffle 0..$qtd;
         for(my $f=1; $f < 6; $f++) {
             my $call2 = $server.'/v1/public/stories'.$parms.'&characters='.$row->{id}.'&orderBy=id&limit=1&offset='.$idx[$f];
             my $story = JSON->new->utf8->decode(goCall($call2));
-            print $idx[$f].': '.$story->{data}->{results}[0]->{title}.": ".$story->{data}->{results}[0]->{resourceURI}."\n";
+            my $descrp = $story->{data}->{results}[0]->{description};
+            if($descrp ne '') {
+                $descrp .= '<br>';
+            }
+            $tpl2 .= '
+            <p>
+                <strong>'.$story->{data}->{results}[0]->{title}.'</strong><br>'.$descrp.'
+                URL: <a href="'.$story->{data}->{results}[0]->{resourceURI}.'?apikey='.$apikey.'">'.$story->{data}->{results}[0]->{resourceURI}.'</a>
+            </p>            
+            ';
         }
-        print "\n";
+        $tpl =~ s/\<\%stories\%\>/$tpl2/gmi;
+        $full .= $tpl;
     }
 }
 
+$full .= `cat $path/template_footer.html`;
+open(my $fh, '>', 'index.html');
+print $fh $full;
+close($fh);
 
 exit;
 
