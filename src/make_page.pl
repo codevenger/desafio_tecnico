@@ -1,9 +1,11 @@
 #!/usr/bin/perl
 
+binmode STDOUT, ":encoding(utf8)";
 
 use strict;
 use warnings;
 
+use utf8;
 use JSON;
 use LWP::UserAgent;
 use HTTP::Request;
