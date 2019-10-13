@@ -5,7 +5,7 @@ binmode STDOUT, ":encoding(utf8)";
 use strict;
 use warnings;
 
-use utf8;
+use utf8::all;
 use JSON;
 use LWP::UserAgent;
 use HTTP::Request;
@@ -43,19 +43,23 @@ foreach my $hero(@heros) {
         $tpl =~ s/\<\%thumbnail\%\>/$t/gmi;
         my $qtd = $row->{stories}->{available};
         my @idx = shuffle 0..$qtd;
-        for(my $f=1; $f < 6; $f++) {
-            my $call2 = $server.'/v1/public/stories'.$parms.'&characters='.$row->{id}.'&orderBy=id&limit=1&offset='.$idx[$f];
+        my $tot = 1;
+        my $cur = 1;
+        while($tot < 6 && $cur < $qtd) {
+            my $call2 = $server.'/v1/public/stories'.$parms.'&characters='.$row->{id}.'&orderBy=id&limit=1&offset='.$idx[$cur];
             my $story = JSON->new->utf8->decode(goCall($call2));
             my $descrp = $story->{data}->{results}[0]->{description};
-            if($descrp ne '') {
+            if($descrp && $descrp ne '') {
                 $descrp .= '<br>';
+                $tot++;
+                $tpl2 .= '
+                <p>
+                    <strong>'.$story->{data}->{results}[0]->{title}.'</strong><br>'.$descrp.'
+                    URL: <a href="'.$story->{data}->{results}[0]->{resourceURI}.'?apikey='.$apikey.'">'.$story->{data}->{results}[0]->{resourceURI}.'</a>
+                </p>            
+                ';
             }
-            $tpl2 .= '
-            <p>
-                <strong>'.$story->{data}->{results}[0]->{title}.'</strong><br>'.$descrp.'
-                URL: <a href="'.$story->{data}->{results}[0]->{resourceURI}.'?apikey='.$apikey.'">'.$story->{data}->{results}[0]->{resourceURI}.'</a>
-            </p>            
-            ';
+            $cur++;
         }
         $tpl =~ s/\<\%stories\%\>/$tpl2/gmi;
         $full .= $tpl;
