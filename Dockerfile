@@ -25,6 +25,7 @@ RUN \
     apt-get -y clean
 
 COPY localhost.conf /etc/apache2/sites-enabled/localhost.conf
+COPY marvel_developer.conf /etc/marvel_developer.conf
 
 VOLUME ["/usr/local/sbin"]
 VOLUME ["/var/www/html"]
